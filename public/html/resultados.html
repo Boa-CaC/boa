@@ -34,10 +34,54 @@
         <section class="lastPublications">
             <h2 class="lastPublications__title">Encontramos estos comercios</h2>
             <div id="comercios-container" class="cards cards--ani">
+
+                <script>
+                    async function fetchResults() {
+                        const urlParams = new URLSearchParams(window.location.search);
+                        const query = urlParams.get('query');
+                        
+                        const response = await fetch(`/comercios/buscar?query=${encodeURIComponent(query)}`);
+                        const data = await response.json();
+                        console.log(data);
+                        const resultsDiv = document.getElementById('comercios-container');
+                        
+                        if (data.length === 0) {
+                            resultsDiv.innerHTML = '<p>No se encontraron comercios.</p>';
+                            return;
+                        }
+
+                        /*<a class="card-small" href="./comercio/?slug=${commerce.slug}" role="article">
+    <img src="${commerce.imgPerfil}" alt="${commerce.altPerfil}" class="card-small__image">
+        <h3 class="card-small__title">${commerce.nombre}</h3>
+        <p class="card-small__text">${categoria}</p>
+            <footer class="card-small__footer">
+            <ul class="card__services">
+                ${commerce.accessibility ? commerce.accessibility.map(service => getAccessibilityIcon(service)).join('') : ''}
+                ${commerce.menu ? commerce.menu.map(service => getAccessibilityIcon(service)).join('') : ''}
+            </ul>
+            </footer>
+    </a>`;*/
+                
+                        let html = ''
+                        data.forEach(comercio => {
+                            html += `
+                                <a class="card-small" href="./comercio/?slug=${comercio.slug}" role="article">
+                                    <img src="${comercio.img_perfil}" alt="${comercio.alt_perfil}" class="card-small__image">
+                                    <h3 class="card-small__title">${comercio.nombre}</h3>
+                                </li>
+                            `;
+                        });
+                        resultsDiv.innerHTML = html;
+                    }
+                
+                    fetchResults();
+                </script>
+
+
                 <script src="../js/comercios.js"></script>
                 <script>
                     // Llamar a la función para generar las cards
-                    generateResultsCards();
+                   // generateResultsCards();
                     </script>
             </div>
         </section>

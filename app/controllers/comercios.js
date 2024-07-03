@@ -12,6 +12,51 @@ const handleError = (res, err) => {
 }
 
 // GETS
+// BUSQUEDA COMERCIO DESDE MUCHOS
+const searchComercios = async (req, res) => {
+  const { query } = req.query;
+  
+  if (!query) {
+    return res.status(400).send({ message: "Query is required" });
+  }
+
+  try {
+    const sql = `
+      SELECT 
+        c.id, c.nombre, c.slug, c.descripcion, c.img_perfil, c.alt_perfil, c.img_header, c.alt_header, 
+        c.domicilio, c.latitud, c.longitud, c.web, c.email, c.instagram, c.id_usuario, c.ts, c.id_ciudad,
+        ci.ciudad_nombre,
+        GROUP_CONCAT(DISTINCT cat.nombre) AS categorias,
+        GROUP_CONCAT(DISTINCT acc.nombre) AS accesibilidades,
+        GROUP_CONCAT(DISTINCT men.nombre) AS menues
+      FROM comercios c
+      LEFT JOIN ciudad ci ON c.id_ciudad = ci.id
+      LEFT JOIN categoria_comercio cc ON c.id = cc.id_comercio
+      LEFT JOIN categorias cat ON cc.id_categoria = cat.id
+      LEFT JOIN accesibilidad_comercio ac ON c.id = ac.id_comercio
+      LEFT JOIN accesibilidad acc ON ac.id_accesibilidad = acc.id
+      LEFT JOIN menues_comercio mc ON c.id = mc.id_comercio
+      LEFT JOIN menues men ON mc.id_menu = men.id
+      WHERE 
+        c.nombre LIKE ? OR 
+        c.descripcion LIKE ? OR
+        c.domicilio LIKE ? OR 
+        ci.ciudad_nombre LIKE ? OR
+        cat.nombre LIKE ? OR 
+        acc.nombre LIKE ? OR 
+        men.nombre LIKE ?
+      GROUP BY c.id, ci.ciudad_nombre
+    `;
+
+    db.query(sql, [`%${query}%`, `%${query}%`, `%${query}%`, `%${query}%`, `%${query}%`, `%${query}%`, `%${query}%`], (err, result) => {
+      if (err) return handleError(res, err)
+      res.json(result)
+    })
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: 'Internal Server Error' })
+  }
+}
 
 const getComercios = (req, res) => {
   const sql = 'SELECT * FROM comercios ORDER BY id DESC'
@@ -117,7 +162,8 @@ const addComercio = (req, res) => {
       // Insertar categorías
       if (categorias && categorias.length > 0) {
         const sqlCategorias = 'INSERT INTO categoria_comercio (id_comercio, id_categoria) VALUES ?'
-        const categoriasValues = categorias.map(idCategoria => [idComercio, idCategoria])
+        const categoriasValues = categorias.map(id_categoria => [id_comercio, id_categoria])
+
         db.query(sqlCategorias, [categoriasValues], (err, result) => {
           if (err) return handleError(res, err)
         })
@@ -126,7 +172,7 @@ const addComercio = (req, res) => {
       // Insertar accesibilidad
       if (accesibilidad && accesibilidad.length > 0) {
         const sqlAccesibilidad = 'INSERT INTO accesibilidad_comercio (id_comercio, id_accesibilidad) VALUES ?'
-        const accesibilidadValues = accesibilidad.map(idAccesibilidad => [idComercio, idAccesibilidad])
+        const accesibilidadValues = accesibilidad.map(id_accesibilidad => [idComercio, id_accesibilidad])
         db.query(sqlAccesibilidad, [accesibilidadValues], (err, result) => {
           if (err) return handleError(res, err)
         })
@@ -135,7 +181,7 @@ const addComercio = (req, res) => {
       // Insertar menús
       if (menues && menues.length > 0) {
         const sqlMenues = 'INSERT INTO menues_comercio (id_comercio, id_menu) VALUES ?'
-        const menuesValues = menues.map(idMenu => [idComercio, idMenu])
+        const menuesValues = menues.map(id_menu => [id_comercio, id_menu])
         db.query(sqlMenues, [menuesValues], (err, result) => {
           if (err) return handleError(res, err)
         })
@@ -159,7 +205,7 @@ const getCategories = (req, res) => {
 // Obtener categorías por comercio
 const getCategoriesByCommerce = (req, res) => {
   const { id } = req.params
-  const sql = 'SELECT nombre FROM categorias WHERE id IN ( SELECT id_categoria FROM categoria_comercio     WHERE id_comercio = ? )'
+  const sql = 'SELECT nombre FROM categorias WHERE id IN ( SELECT id_categoria FROM categoria_comercio WHERE id_comercio = ? )'
   db.query(sql, [id], (err, result) => {
     if (err) return handleError(res, err)
     res.json(result)
@@ -270,21 +316,21 @@ const updateComercio = async (req, res) => {
       // Insertar categorías
       if (categorias.length > 0) {
         const sqlCategorias = 'INSERT INTO categoria_comercio (id_comercio, id_categoria) VALUES ?'
-        const categoriasValues = categorias.map(idCategoria => [id, idCategoria])
+        const categoriasValues = categorias.map(id_categoria => [id, id_categoria])
         await query(sqlCategorias, [categoriasValues])
       }
 
       // Insertar accesibilidad
       if (accesibilidad.length > 0) {
         const sqlAccesibilidad = 'INSERT INTO accesibilidad_comercio (id_comercio, id_accesibilidad) VALUES ?'
-        const accesibilidadValues = accesibilidad.map(idAccesibilidad => [id, idAccesibilidad])
+        const accesibilidadValues = accesibilidad.map(id_accesibilidad => [id, id_accesibilidad])
         await query(sqlAccesibilidad, [accesibilidadValues])
       }
 
       // Insertar menús
       if (menues.length > 0) {
         const sqlMenues = 'INSERT INTO menues_comercio (id_comercio, id_menu) VALUES ?'
-        const menuesValues = menues.map(idMenu => [id, idMenu])
+        const menuesValues = menues.map(id_menu => [id, id_menu])
         await query(sqlMenues, [menuesValues])
       }
 
@@ -323,6 +369,9 @@ const deleteComercio = (req, res) => {
   })
 }
 
+
+
+
 module.exports = {
   getComercios,
   getComercioById,
@@ -337,5 +386,6 @@ module.exports = {
   getProvinces,
   getCities,
   getCategoriesByCommerce,
+  searchComercios,
   deleteComercio
 }
