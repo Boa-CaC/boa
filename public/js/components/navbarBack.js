@@ -21,7 +21,7 @@ class NavbarBack extends HTMLElement {
         this.shadowRoot.innerHTML = `
             <style>${NavbarBack.styles}</style>
             <nav class="menuPrincipal">
-        <a href="#" class="menuPrincipal__back u-hiddeDesktop"><i class="fa fa-chevron-left" aria-hidden="true"></i></a>
+        <a href="http://boacac.alwaysdata.net/" class="menuPrincipal__back u-hiddeDesktop"><i class="fa fa-chevron-left" aria-hidden="true"></i></a>
         <div class="menuPrincipal__leftWrapper">
             <h1 class="menuPrincipal__logo gelatina"><a class="menuPrincipal__logoLink" href="/">BOA</a></h1>
         </div>
@@ -30,10 +30,10 @@ class NavbarBack extends HTMLElement {
             <button id="btnClose" class="menuPrincipal__controlClose u-hiddeDesktop"  aria-label="Close"><span class="mdi mdi-close"></span></button>
             <ul class="menuPrincipal__items">
                 <li class="menuPrincipal__item">
-                    <a href="/back" class="menuPrincipal__link"><span class="mdi mdi-store-plus"></span> Agregar comercio</a>
+                    <a href="http://boacac.alwaysdata.net/back" class="menuPrincipal__link"><span class="mdi mdi-store-plus"></span> Agregar comercio</a>
                 </li>
                 <li class="menuPrincipal__item">
-                    <a href="/" class="menuPrincipal__link"><span class="mdi mdi-exit-run"></span> Salir</a>
+                    <a href="http://boacac.alwaysdata.net/" class="menuPrincipal__link"><span class="mdi mdi-exit-run"></span> Salir</a>
                 </li>
                 <li class="menuPrincipal__item">
                     <span class="menuPrincipal__link"><span class="mdi mdi-account"></span> Matíass Cano</span>
