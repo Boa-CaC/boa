@@ -23,7 +23,7 @@ class NavbarBack extends HTMLElement {
             <nav class="menuPrincipal">
         <a href="http://boacac.alwaysdata.net/" class="menuPrincipal__back u-hiddeDesktop"><i class="fa fa-chevron-left" aria-hidden="true"></i></a>
         <div class="menuPrincipal__leftWrapper">
-            <h1 class="menuPrincipal__logo gelatina"><a class="menuPrincipal__logoLink" href="/">BOA</a></h1>
+            <h1 class="menuPrincipal__logo gelatina"><a class="menuPrincipal__logoLink" href="http://boacac.alwaysdata.net/">BOA</a></h1>
         </div>
         <button id="btnOpen" class="menuPrincipal__controlOpen u-hiddeDesktop" aria-expanded="false" aria-labelledby="nav-label"><span class="mdi mdi-menu"></span></button>
         <div class="menuPrincipal__wrappItems" data-state="close" role="dialog">
