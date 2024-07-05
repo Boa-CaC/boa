@@ -23,7 +23,7 @@ class NavbarPrimary extends HTMLElement {
             <nav class="menuPrincipal">
         <a href="http://boacac.alwaysdata.net/" class="menuPrincipal__back u-hidde u-hiddeDesktop"><i class="fa fa-chevron-left" aria-hidden="true"></i></a>
         <div class="menuPrincipal__leftWrapper">
-            <h1 class="menuPrincipal__logo gelatina"><a class="menuPrincipal__logoLink" href="./">BOA</a></h1>
+            <h1 class="menuPrincipal__logo gelatina"><a class="menuPrincipal__logoLink" href="http://boacac.alwaysdata.net/">BOA</a></h1>
             <select name="ciudad" id="ciudad" class="menuPrincipal__select">
                 <option value="Mar del Plata" selected>Mar del Plata</option>
                 <option value="Mar del Plata" >Miramar</option>
