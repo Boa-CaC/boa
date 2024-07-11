@@ -20,10 +20,15 @@
 
     <aside class="asideBack">
         <h2 class="asideBack__title">Comercios</h2>
-
         <script>
-            // listamos los comercios por userID y ponemos botones de editar y borrar
-            const usrID = 16
+           document.addEventListener('DOMContentLoaded', async () => {   
+            let usrID = null
+            fetch('/api/user')
+                .then(response => response.json())
+                .then(user => {
+                    usrID = user.id;
+                })
+
             fetch(`../comercios/user/${usrID}`)
                 .then(response => response.json())
                 .then(data => {
@@ -64,6 +69,7 @@
                         });
                     });
                 });
+            })
         </script>
     </aside>
         <div class="commerceBack">
@@ -72,68 +78,54 @@
                 <!-- <a class="commerceBack__preview" title="Previsualizar" href="./comercio.html"><span class="mdi mdi-eye"></span></a>-->
             </div>
             <script>
-                document.addEventListener("DOMContentLoaded", () => {
-                    const comercio_id = new URLSearchParams(window.location.search).get('id');
-                    const form = document.getElementById('altaComercio');
-                    
-                    const populateForm = (comercio) => {
-                        document.getElementById('nombre').value = comercio.nombre;
-                        document.getElementById('descripcion').value = comercio.descripcion;
-                        document.getElementById('imgPerfil').value = comercio.img_perfil;
-                        document.getElementById('altPerfil').value = comercio.alt_perfil;
-                        document.getElementById('imgHeader').value = comercio.img_header;
-                        document.getElementById('altHeader').value = comercio.alt_header;
-                        document.getElementById('domicilio').value = comercio.domicilio;
-                        document.getElementById('latitud').value = comercio.latitud;
-                        document.getElementById('longitud').value = comercio.longitud;
-                        document.getElementById('web').value = comercio.web;
-                        document.getElementById('email').value = comercio.email;
-                        document.getElementById('instagram').value = comercio.instagram;
-                    };
+                document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const userResponse = await fetch('./api/user');
+                const user = await userResponse.json();
+                const usrID = user.id;
 
-                    const handleSubmit = (event) => {
-                        event.preventDefault();
-                        const formData = new FormData(form);
-                        console.log(...formData); // Verifica los datos del formulario
+                const comercioResponse = await fetch(`../comercios/user/${usrID}`);
+                const comercios = await comercioResponse.json();
 
-                        const data = {};
-                        formData.forEach((value, key) => {
-                            data[key] = value;
-                        });
-
-                        fetch(form.action, {
-                            method: form.dataset.method,
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify(data)
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            alert('Operación realizada correctamente');
-                            window.location.reload();
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            alert('Ocurrió un error al procesar la solicitud');
-                        });
-                    };
-
-                    if (comercio_id) {
-                        form.action = `../comercios/update/${comercio_id}/`;
-                        form.dataset.method = 'PUT';
-                        fetch(`../comercios/byId/${comercio_id}`)
-                            .then(response => response.json())
-                            .then(data => {
-                                const comercio = data[0];
-                                populateForm(comercio);
-                                form.addEventListener('submit', handleSubmit);
-                            });
-                    } else {
-                        form.dataset.method = 'POST';
-                        form.addEventListener('submit', handleSubmit);
-                    }
+                comercios.forEach(comercio => {
+                    const card = document.createElement('div');
+                    card.className = 'card-extra-small';
+                    card.innerHTML = `
+                        <h3 class="card-extra-small__title">${comercio.nombre}</h3>
+                        <a href="../comercio/?slug=${comercio.slug}" target="_blank" class="card-extra-small__preview" title="Previsualizar"><span class="mdi mdi-eye"></span></a>
+                        <button class="card-extra-small__delete" data-id="${comercio.id}" title="Eliminar"><span class="mdi mdi-delete"></span></button>
+                        <a href="../back/?id=${comercio.id}" class="card-extra-small__preview" title="Editar"><span class="mdi mdi-pencil"></span></a>
+                    `;
+                    document.querySelector('.asideBack').appendChild(card);
                 });
+
+                // Añadir funcionalidad de eliminación a los botones
+                document.querySelectorAll('.card-extra-small__delete').forEach(button => {
+                    button.addEventListener('click', async (event) => {
+                        const comercioId = event.target.closest('button').dataset.id;
+                        if (confirm('¿Estás seguro de que deseas eliminar este comercio?')) {
+                            try {
+                                const deleteResponse = await fetch(`../comercios/delete/${comercioId}`, {
+                                    method: 'DELETE'
+                                });
+                                const result = await deleteResponse.json();
+                                
+                                // Remover la tarjeta del DOM
+                                event.target.closest('.card-extra-small').remove();
+                                alert('Comercio eliminado correctamente');
+                                // Cargar nuevamente los comercios
+                                window.location.reload();
+                            } catch (error) {
+                                console.error('Error:', error);
+                                alert('Ocurrió un error al eliminar el comercio');
+                            }
+                        }
+                    });
+                });
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        });
             </script>
             <form id="altaComercio" action="./comercios/create/" method="POST" class="form commerceProfile">
                 <div class="form__block">

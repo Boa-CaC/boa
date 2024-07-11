@@ -12,16 +12,16 @@
     <link rel="stylesheet" href="../style/style.css">
     <script type="module" src="/js/components/navbarPrimary.js"></script>
 </head>
-<body>
+<body id="content">
     <navbar-primary></navbar-primary>
     <main class="dash">
         <div class="login">
             <h2 class="login__title">Ingresar</h2>
-            <form action="/back" class="form">
+            <form method="post" action="./usuarios/login" class="form">
                 <div class="form__block">
-                    <label class="form__label" for="name">Usuario o email</label>
-                    <input type="text" name="name" id="name" class="form__input" required>
-                    <div class="form__textHelp">Ingrese el nombre de usuario o el email con el que se registró</div>
+                    <label class="form__label" for="email">Email</label>
+                    <input type="text" name="email" id="email" class="form__input" required>
+                    <div class="form__textHelp">Ingrese el email con el que se registró</div>
                 </div>
                 <div class="form__block">
                     <label class="form__label" for="pass">Contraseña</label>
@@ -31,6 +31,32 @@
                 <button class="form__button form__button--primary" type="submit">Ingresar</button>
                 <button class="form__button form__button--secondary" type="button">Olvidé la contraseña</button>
             </form>
+            <script>
+                document.addEventListener('DOMContentLoaded', async () => {
+                    document.querySelector('form').addEventListener('submit', async (event) => {
+                    event.preventDefault();
+
+                    const email = document.getElementById('email').value;
+                    const pass = document.getElementById('pass').value;
+
+                    const response = await fetch('/usuarios/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ email: email, pass: pass })
+                    });
+
+                    const data = await response.json();
+                    if (data.error) {
+                        alert(data.error);
+                    } else {
+                        window.location.href = '/back';
+                    }
+                });
+                })
+                
+            </script>
         </div>
     </main>
     <footer class="footerPrincipal">

@@ -5,15 +5,21 @@ const express = require('express');
 // Conectamos la base de datos
 const db = require('./app/db/db');
 
-// Limpia la caché de require
-Object.keys(require.cache).forEach(function(key) {
-    delete require.cache[key];
-});
+// Llamamos a dotenv
+require('dotenv').config();
 
 // Llamamos a body-parser
 const bodyParser = require('body-parser');
 // Importamos path para manejar rutas de archivos
 const path = require('path');
+
+const cookieParser = require('cookie-parser')
+
+
+
+const authenticateJWT = require('./app/middlewares/auth');
+const jwt = require('jsonwebtoken');
+const secretKey = process.env.JWT_SECRET
 
 // Creamos la variable app que nos va a permitir hacer llamadas
 const app = express();
@@ -24,6 +30,8 @@ const PORT = process.env.PORT || 3000;
 // Middleware para parsear JSON antes de definir las rutas
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+app.use(cookieParser(secretKey));
 
 // Middleware para servir archivos estáticos
 app.use(express.static(path.join(__dirname, 'public')));
@@ -55,9 +63,20 @@ app.get('/registro', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'html', 'registro.html'));
 });
 
-app.get('/back', (req, res) => {
+app.get('/api/user', authenticateJWT, (req, res) => {
+    res.json({
+      id: req.user.id,
+      nombre: req.user.nombre,
+      email: req.user.email,
+      foto: req.user.foto,
+      id_rol: req.user.id_rol
+    });
+  });
+  
+
+app.get('/back', authenticateJWT, (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'html', 'back.html'));
-});
+  });
 
 app.get('/resultados', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'html', 'resultados.html'));
