@@ -1,6 +1,22 @@
 const db = require('../db/db')
+const bcrytp = require('bcrypt')
+const jwt = require('jsonwebtoken')
+//llamamos a dotenv
+require('dotenv').config()
 
-const addUsuario = (req, res) => {
+const encrypt = async (password) => {
+    const salt = await bcrytp.genSalt(10)
+    return await bcrytp.hash(password, salt)
+}
+
+const compare = async (password, hash) => {
+    return await bcrytp.compare(password, hash)
+}
+
+//Obtenemos la secret key del .env
+const secretKey = process.env.JWT_SECRET
+
+const addUsuario = async (req, res) => {
     let {
         nombre, email, password, password2,idRol
     } = req.body
@@ -11,6 +27,8 @@ const addUsuario = (req, res) => {
 
     if (password !== password2) {
         return res.status(400).json({ error: 'Las contraseñas no coinciden' });
+    }else{
+        password = await encrypt(password)
     }
 
     const sql = 'INSERT INTO usuarios (nombre, email, password, id_rol) VALUES (?, ?, ?, ?)'
@@ -92,13 +110,35 @@ const getRoles = (req, res) => {
 }
 
 const login = (req, res) => {
-    const { email, password } = req.body
-    const sql = 'SELECT * FROM usuarios WHERE email = ? AND password = ?'
-    db.query(sql, [email, password], (err, result) => {
-        if (err) throw err
-        res.json(result)
-    })
-}
+    let { email, pass } = req.body;
+
+    if (!email || !pass) {
+        return res.status(400).json({ error: 'Todos los campos son obligatorios' });
+    }
+
+    const sql = 'SELECT * FROM usuarios WHERE email = ?';
+    db.query(sql, [email], async (err, result) => {
+        if (err) {
+            console.error('Error en la consulta:', err);
+            return res.status(500).json({ error: 'Error interno del servidor' });
+        }
+        if (result.length === 0) {
+            return res.status(401).json({ error: 'El usuario no existe' });
+        }
+        
+        const user = result[0];
+        const match = await compare(pass, user.password);  // Compara la contraseña en texto plano con la encriptada
+        
+        if (!match) {
+            return res.status(401).json({ error: 'La contraseña es incorrecta' });
+        }
+        // creamos la cookie con el token
+        const token = jwt.sign({ id: user.id, email: user.email, idRol: user.id_rol }, secretKey, { expiresIn: '1h' });
+        res.cookie('token', token, { httpOnly: true });
+        res.status(200).json({ id: user.id, idRol: user.id_rol, token: token });
+        console.log("Login correcto", user);
+    });
+};
 
 module.exports = {
     addUsuario,
