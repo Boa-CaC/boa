@@ -86,6 +86,12 @@ app.get('/login', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'html', 'login.html'));
 });
 
+app.get('/logout', (req, res) => {
+    // Destruimos la cookie con el token
+    res.clearCookie('token');
+    res.redirect('/login');
+});
+
 app.use('/uploads', express.static('uploads'));
 
 // Error 404

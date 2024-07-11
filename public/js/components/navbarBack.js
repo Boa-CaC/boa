@@ -33,7 +33,7 @@ class NavbarBack extends HTMLElement {
                     <a href="http://boacac.alwaysdata.net/back" class="menuPrincipal__link"><span class="mdi mdi-store-plus"></span> Agregar comercio</a>
                 </li>
                 <li class="menuPrincipal__item">
-                    <a href="http://boacac.alwaysdata.net/" class="menuPrincipal__link"><span class="mdi mdi-exit-run"></span> Salir</a>
+                    <a href="http://boacac.alwaysdata.net/logout" class="menuPrincipal__link"><span class="mdi mdi-exit-run"></span> Salir</a>
                 </li>
                 <li class="menuPrincipal__item">
                     <span class="menuPrincipal__link"><span class="mdi mdi-account"></span> Matíass Cano</span>
